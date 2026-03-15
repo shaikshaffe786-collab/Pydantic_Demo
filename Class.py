@@ -15,6 +15,16 @@
 
 
 from pydantic import BaseModel, Field, EmailStr, field_validator, model_validator, computed_field
+from typing import Dict
+
+class Address(BaseModel):
+   house_no:str
+   area:str
+   City:str
+   state:str
+   pincode:int  
+
+
 
 class Student(BaseModel):
     name:str = Field(max_length=50) #max_length is used to validate the length of the string
@@ -22,6 +32,7 @@ class Student(BaseModel):
     age:int = Field(gt=0, le=200)   
     college:str
     marks: float = Field(default=0.0,ge=0, le=100)
+    address: Address
 
 
 
@@ -65,25 +76,29 @@ class Student(BaseModel):
     @classmethod
     def validate_marks(cls, model):
         if model.marks < 0 or model.marks > 100:
-            raise ValueError("% should be between 0 and 100")
+            raise ValueError("Percentage should be between 0 and 100")
         return model
 
+address_info = {'house_no':'123', 'area':'MG Road', 'City':'Bangalore', 'state':'Karnataka', 'pincode':560001}
+address_Obj = Address(**address_info)
 
-
-student_info = {'name' :'Shaffe', 'age' : '18', 'college' : 'MASAI', 'marks' : '89', 'email' : 'Shaffe@masai.com'}
+student_info = {'name' :'Shaffe', 'age' : '18', 'college' : 'MASAI', 'marks' : '89', 'email' : 'Shaffe@masai.com', 'address' : address_Obj}
 
 #Using this student_info dictionary, we can create an student
 #student object is basically an objet that holds some values related to object
 student = Student(**student_info) #** is used to unpack the dictionary and pass it to the Student class
 #student becomes pydantic object
-print(student.name)
-print(student.age)
-print(student.college)
-print(student.marks)
-print(student.email)
-print(student.percentage) #computed field
+# print(student.name)
+# print(student.age)
+# print(student.college)
+# print(student.marks)
+# print(student.email)
+# print(student.percentage) #computed field
+# print(address_Obj)
 
         #By basic all the fields become mandatory in pydantic base model
         #we can also make some default values then use == beside objects of classes ex: College== 'MIT' then it will be default value for that field
-
+#convert student object to dictionary
+student_dict = student.model_dump(exclude=['marks','address']) #exclude is used to exclude the address field from the dictionary
+print(student_dict)
 
